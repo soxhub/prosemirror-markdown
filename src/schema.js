@@ -143,6 +143,11 @@ export const schema = new Schema({
     code: {
       parseDOM: [{tag: "code"}],
       toDOM() { return ["code"] }
+    },
+
+    underline: {
+      parseDOM: [{tag: "underline"}],
+      toDOM() { return ["underline"] }
     }
   }
 })
