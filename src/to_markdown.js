@@ -125,6 +125,9 @@ export const defaultMarkdownSerializer = new MarkdownSerializer({
          escape: false},
   underline: {open(_state, _mark, parent, index) { return underlinesFor(parent.child(index), -1) },
         close(_state, _mark, parent, index) { return underlinesFor(parent.child(index - 1), 1) },
+        escape: false},
+  strikethrough: {open(_state, _mark, parent, index) { return tildesFor(parent.child(index), -1) },
+        close(_state, _mark, parent, index) { return underlinesFor(parent.child(index - 1), 1) },
         escape: false}
 })
 
@@ -138,10 +141,19 @@ function backticksFor(node, side) {
 }
 
 function underlinesFor(node, side) {
-  let ticks = /__+/g, m, len = 0
+  let ticks = /___+/g, m, len = 0
   if (node.isText) while (m = ticks.exec(node.text)) len = Math.max(len, m[0].length)
-  let result = len > 0 && side > 0 ? " __" : "__"
-  for (let i = 0; i < len; i++) result += "__"
+  let result = len > 0 && side > 0 ? " ___" : "___"
+  for (let i = 0; i < len; i++) result += "___"
+  if (len > 0 && side < 0) result += " "
+  return result
+}
+
+function tildesFor(node, side) {
+  let ticks = /~~+/g, m, len = 0
+  if (node.isText) while (m = ticks.exec(node.text)) len = Math.max(len, m[0].length)
+  let result = len > 0 && side > 0 ? " ~~" : "~~"
+  for (let i = 0; i < len; i++) result += "~~"
   if (len > 0 && side < 0) result += " "
   return result
 }

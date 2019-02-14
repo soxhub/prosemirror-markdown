@@ -148,6 +148,11 @@ export const schema = new Schema({
     underline: {
       parseDOM: [{tag: "underline"}],
       toDOM() { return ["underline"] }
+    },
+
+    strikethrough: {
+      parseDOM: [{tag: "strikethrough"}],
+      toDOM() { return ["strikethrough"] }
     }
   }
 })
