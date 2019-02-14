@@ -1,6 +1,7 @@
 import markdownit from "markdown-it"
 import {schema} from "./schema"
 import {Mark} from "prosemirror-model"
+import underline from "markdown-it-underline"
 
 function maybeMerge(a, b) {
   if (a.isText && b.isText && Mark.sameSet(a.marks, b.marks))
@@ -91,7 +92,7 @@ function attrs(spec, token) {
 // Code content is represented as a single token with a `content`
 // property in Markdown-it.
 function noOpenClose(type) {
-  return type == "strikethrough_inline" || type == "underline_inline" || type == "code_inline" || type == "code_block" || type == "fence"
+  return type == "code_inline" || type == "code_block" || type == "fence"
 }
 
 function withoutTrailingNewline(str) {
@@ -217,7 +218,7 @@ export class MarkdownParser {
 // :: MarkdownParser
 // A parser parsing unextended [CommonMark](http://commonmark.org/),
 // without inline HTML, and producing a document in the basic schema.
-export const defaultMarkdownParser = new MarkdownParser(schema, markdownit("commonmark", {html: false}), {
+export const defaultMarkdownParser = new MarkdownParser(schema, markdownit("commonmark", {html: false}).use(underline), {
   blockquote: {block: "blockquote"},
   paragraph: {block: "paragraph"},
   list_item: {block: "list_item"},
@@ -236,11 +237,11 @@ export const defaultMarkdownParser = new MarkdownParser(schema, markdownit("comm
 
   em: {mark: "em"},
   strong: {mark: "strong"},
+  u: {mark: "u"},
   link: {mark: "link", getAttrs: tok => ({
     href: tok.attrGet("href"),
     title: tok.attrGet("title") || null
   })},
   code_inline: {mark: "code"},
-  underline_inline: {mark: "underline"},
   strikethrough_inline: {mark: "strikethrough"}
 })

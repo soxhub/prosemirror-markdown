@@ -110,6 +110,8 @@ export const defaultMarkdownSerializer = new MarkdownSerializer({
   }
 }, {
   em: {open: "*", close: "*", mixable: true, expelEnclosingWhitespace: true},
+  u: {open: "_", close: "_", mixable: true, expelEnclosingWhitespace: true},
+  strikethrough: {open: "~~", close: "~~", mixable: true, expelEnclosingWhitespace: true},
   strong: {open: "**", close: "**", mixable: true, expelEnclosingWhitespace: true},
   link: {
     open(_state, mark, parent, index) {
@@ -122,13 +124,7 @@ export const defaultMarkdownSerializer = new MarkdownSerializer({
   },
   code: {open(_state, _mark, parent, index) { return backticksFor(parent.child(index), -1) },
          close(_state, _mark, parent, index) { return backticksFor(parent.child(index - 1), 1) },
-         escape: false},
-  underline: {open(_state, _mark, parent, index) { return underlinesFor(parent.child(index), -1) },
-        close(_state, _mark, parent, index) { return underlinesFor(parent.child(index - 1), 1) },
-        escape: false},
-  strikethrough: {open(_state, _mark, parent, index) { return tildesFor(parent.child(index), -1) },
-        close(_state, _mark, parent, index) { return underlinesFor(parent.child(index - 1), 1) },
-        escape: false}
+         escape: false}
 })
 
 function backticksFor(node, side) {
@@ -136,15 +132,6 @@ function backticksFor(node, side) {
   if (node.isText) while (m = ticks.exec(node.text)) len = Math.max(len, m[0].length)
   let result = len > 0 && side > 0 ? " `" : "`"
   for (let i = 0; i < len; i++) result += "`"
-  if (len > 0 && side < 0) result += " "
-  return result
-}
-
-function underlinesFor(node, side) {
-  let ticks = /___+/g, m, len = 0
-  if (node.isText) while (m = ticks.exec(node.text)) len = Math.max(len, m[0].length)
-  let result = len > 0 && side > 0 ? " ___" : "___"
-  for (let i = 0; i < len; i++) result += "___"
   if (len > 0 && side < 0) result += " "
   return result
 }
