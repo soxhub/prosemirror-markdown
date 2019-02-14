@@ -91,7 +91,7 @@ function attrs(spec, token) {
 // Code content is represented as a single token with a `content`
 // property in Markdown-it.
 function noOpenClose(type) {
-  return type == "code_inline" || type == "code_block" || type == "fence"
+  return type == "underline_inline" || type == "code_inline" || type == "code_block" || type == "fence"
 }
 
 function withoutTrailingNewline(str) {
@@ -240,5 +240,6 @@ export const defaultMarkdownParser = new MarkdownParser(schema, markdownit("comm
     href: tok.attrGet("href"),
     title: tok.attrGet("title") || null
   })},
-  code_inline: {mark: "code"}
+  code_inline: {mark: "code"},
+  underline_inline: {mark: "underline"}
 })
