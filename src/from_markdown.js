@@ -1,7 +1,6 @@
 import markdownit from "markdown-it"
 import {schema} from "./schema"
 import {Mark} from "prosemirror-model"
-import {underline} from "./underline"
 
 function maybeMerge(a, b) {
   if (a.isText && b.isText && Mark.sameSet(a.marks, b.marks))
@@ -215,10 +214,131 @@ export class MarkdownParser {
   }
 }
 
+const underline = function underline(md) {
+  // Insert each marker as a separate text token, and add it to delimiter list
+  //
+  function tokenize(state, silent) {
+    var i, scanned, token, len, ch,
+        start = state.pos,
+        marker = state.src.charCodeAt(start);
+
+    if (silent) { return false; }
+    if (marker !== 0x3d/* _u_ */) {
+      console.log('marer false: ', marker);
+      return false;
+    }
+
+    scanned = state.scanDelims(state.pos, true);
+    len = scanned.length;
+    ch = String.fromCharCode(marker);
+
+    if (len < 3) { return false; }
+
+    if (len % 3) {
+      token         = state.push('text', '', 0);
+      token.content = ch;
+      len--;
+    }
+
+    for (i = 0; i < len; i += 3) {
+      token         = state.push('text', '', 0);
+      token.content = ch + ch;
+
+      state.delimiters.push({
+        marker: marker,
+        jump:   i,
+        token:  state.tokens.length - 1,
+        level:  state.level,
+        end:    -1,
+        open:   scanned.can_open,
+        close:  scanned.can_close
+      });
+    }
+
+    state.pos += scanned.length;
+
+    return true;
+  }
+
+
+  // Walk through delimiter list and replace text tokens with tags
+  //
+  function postProcess(state) {
+    var i, j,
+        startDelim,
+        endDelim,
+        token,
+        loneMarkers = [],
+        delimiters = state.delimiters,
+        max = state.delimiters.length;
+
+    for (i = 0; i < max; i++) {
+      startDelim = delimiters[i];
+
+      if (startDelim.marker !== 0x3d/* = */) {
+        continue;
+      }
+
+      if (startDelim.end === -1) {
+        continue;
+      }
+
+      endDelim = delimiters[startDelim.end];
+
+      token         = state.tokens[startDelim.token];
+      token.type    = 'underline_open';
+      token.tag     = 'underline';
+      token.nesting = 1;
+      token.markup  = '===';
+      token.content = '';
+
+      token         = state.tokens[endDelim.token];
+      token.type    = 'underline_close';
+      token.tag     = 'underline';
+      token.nesting = -1;
+      token.markup  = '===';
+      token.content = '';
+
+      if (state.tokens[endDelim.token - 1].type === 'text' &&
+          state.tokens[endDelim.token - 1].content === '=') {
+
+        loneMarkers.push(endDelim.token - 1);
+      }
+    }
+
+    // If a marker sequence has an odd number of characters, it's splitted
+    // like this: `~~~~~` -> `~` + `~~` + `~~`, leaving one marker at the
+    // start of the sequence.
+    //
+    // So, we have to move all those markers after subsequent s_close tags.
+    //
+    while (loneMarkers.length) {
+      i = loneMarkers.pop();
+      j = i + 1;
+
+      while (j < state.tokens.length && state.tokens[j].type === 'underline_close') {
+        j++;
+      }
+
+      j--;
+
+      if (i !== j) {
+        token = state.tokens[j];
+        state.tokens[j] = state.tokens[i];
+        state.tokens[i] = token;
+      }
+    }
+  }
+
+  md.inline.ruler.before('emphasis', 'underline', tokenize);
+  md.inline.ruler2.before('emphasis', 'underline', postProcess);
+};
+
+
 // :: MarkdownParser
 // A parser parsing unextended [CommonMark](http://commonmark.org/),
 // without inline HTML, and producing a document in the basic schema.
-export const defaultMarkdownParser = new MarkdownParser(schema, markdownit("commonmark", {html: false}).use(underline), {
+export const defaultMarkdownParser = new MarkdownParser(schema, markdownit().use(underline), {
   blockquote: {block: "blockquote"},
   paragraph: {block: "paragraph"},
   list_item: {block: "list_item"},
@@ -237,11 +357,10 @@ export const defaultMarkdownParser = new MarkdownParser(schema, markdownit("comm
 
   em: {mark: "em"},
   strong: {mark: "strong"},
-  u: {mark: "underline"},
+  underline: {mark: "underline"},
   link: {mark: "link", getAttrs: tok => ({
     href: tok.attrGet("href"),
     title: tok.attrGet("title") || null
   })},
-  code_inline: {mark: "code"},
-  strikethrough_inline: {mark: "strikethrough"}
+  code_inline: {mark: "code"}
 })

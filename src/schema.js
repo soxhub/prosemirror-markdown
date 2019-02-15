@@ -128,16 +128,10 @@ export const schema = new Schema({
       toDOM() { return ["strong"] }
     },
 
-    strikethrough: {
-      parseDOM: [{tag: "strikethrough"}, {tag: "strikethrough"},
-                 {style: "text-decoration", getAttrs: value => value == "line-through" && null}],
-      toDOM() { return ["strikethrough"] }
-    },
-
-    u: {
-      parseDOM: [{tag: "u"}, {tag: "u"},
+    underline: {
+      parseDOM: [{tag: "underline"}, {tag: "underline"},
                  {style: "text-decoration", getAttrs: value => value == "underline" && null}],
-      toDOM() { return ["u"] }
+      toDOM() { return ["underline"] }
     },
 
     link: {
