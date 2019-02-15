@@ -1,7 +1,7 @@
 import markdownit from "markdown-it"
 import {schema} from "./schema"
 import {Mark} from "prosemirror-model"
-import underline from "markdown-it-underline"
+import {underline} from "./underline"
 
 function maybeMerge(a, b) {
   if (a.isText && b.isText && Mark.sameSet(a.marks, b.marks))
@@ -237,7 +237,7 @@ export const defaultMarkdownParser = new MarkdownParser(schema, markdownit("comm
 
   em: {mark: "em"},
   strong: {mark: "strong"},
-  u: {mark: "u"},
+  u: {mark: "underline"},
   link: {mark: "link", getAttrs: tok => ({
     href: tok.attrGet("href"),
     title: tok.attrGet("title") || null

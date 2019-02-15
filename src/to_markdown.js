@@ -110,7 +110,7 @@ export const defaultMarkdownSerializer = new MarkdownSerializer({
   }
 }, {
   em: {open: "*", close: "*", mixable: true, expelEnclosingWhitespace: true},
-  u: {open: "_", close: "_", mixable: true, expelEnclosingWhitespace: true},
+  u: {open: "===", close: "===", mixable: true, expelEnclosingWhitespace: true},
   strikethrough: {open: "~~", close: "~~", mixable: true, expelEnclosingWhitespace: true},
   strong: {open: "**", close: "**", mixable: true, expelEnclosingWhitespace: true},
   link: {
