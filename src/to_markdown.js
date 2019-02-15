@@ -136,15 +136,6 @@ function backticksFor(node, side) {
   return result
 }
 
-function tildesFor(node, side) {
-  let ticks = /~~+/g, m, len = 0
-  if (node.isText) while (m = ticks.exec(node.text)) len = Math.max(len, m[0].length)
-  let result = len > 0 && side > 0 ? " ~~" : "~~"
-  for (let i = 0; i < len; i++) result += "~~"
-  if (len > 0 && side < 0) result += " "
-  return result
-}
-
 function isPlainURL(link, parent, index, side) {
   if (link.attrs.title) return false
   let content = parent.child(index + (side < 0 ? -1 : 0))
