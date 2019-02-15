@@ -134,6 +134,12 @@ export const schema = new Schema({
       toDOM() { return ["underline"] }
     },
 
+    strikethrough: {
+      parseDOM: [{tag: "strikethrough"}, {tag: "strikethrough"},
+                 {style: "text-decoration", getAttrs: value => value == "line-through" && null}],
+      toDOM() { return ["strikethrough"] }
+    },
+
     link: {
       attrs: {
         href: {},
