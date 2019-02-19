@@ -91,7 +91,7 @@ function attrs(spec, token) {
 // Code content is represented as a single token with a `content`
 // property in Markdown-it.
 function noOpenClose(type) {
-  return type == "code_inline" || type == "code_block" || type == "fence"
+  return type == "code_inline" || type == "fence"
 }
 
 function withoutTrailingNewline(str) {
@@ -193,7 +193,7 @@ export class MarkdownParser {
   // **`ignore`**`: ?bool`
   //   : When true, ignore content for the matched token.
   constructor(schema, tokenizer, tokens) {
-    // :: Object The value of the `tokens` object used to construct
+                    // :: Object The value of the `tokens` object used to construct
     // this parser. Can be useful to copy and modify to base other
     // parsers on.
     this.tokens = tokens
@@ -457,29 +457,15 @@ const strikethrough = function strikethrough(md) {
 // A parser parsing unextended [CommonMark](http://commonmark.org/),
 // without inline HTML, and producing a document in the basic schema.
 export const defaultMarkdownParser = new MarkdownParser(schema, markdownit().use(underline).use(strikethrough), {
-  blockquote: {block: "blockquote"},
   paragraph: {block: "paragraph"},
   list_item: {block: "list_item"},
   bullet_list: {block: "bullet_list"},
   ordered_list: {block: "ordered_list", getAttrs: tok => ({order: +tok.attrGet("order") || 1})},
-  heading: {block: "heading", getAttrs: tok => ({level: +tok.tag.slice(1)})},
-  code_block: {block: "code_block"},
   fence: {block: "code_block", getAttrs: tok => ({params: tok.info || ""})},
-  hr: {node: "horizontal_rule"},
-  image: {node: "image", getAttrs: tok => ({
-    src: tok.attrGet("src"),
-    title: tok.attrGet("title") || null,
-    alt: tok.children[0] && tok.children[0].content || null
-  })},
   hardbreak: {node: "hard_break"},
-
   em: {mark: "em"},
   strong: {mark: "strong"},
   strikethrough: {mark: "strikethrough"},
   underline: {mark: "underline"},
-  link: {mark: "link", getAttrs: tok => ({
-    href: tok.attrGet("href"),
-    title: tok.attrGet("title") || null
-  })},
   code_inline: {mark: "code"}
 })

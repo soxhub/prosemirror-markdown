@@ -10,8 +10,8 @@ export const schema = new Schema({
     paragraph: {
       content: "inline*",
       group: "block",
-      parseDOM: [{tag: "p"}],
-      toDOM() { return ["p", 0] }
+      parseDOM: [{tag: "span"}],
+      toDOM() { return ["span", 0] }
     },
 
     blockquote: {
